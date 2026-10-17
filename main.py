@@ -20,9 +20,11 @@ from typing import List
 
 app = FastAPI(title="StudyAI API - Oficial")
 
-# Configurar Gemini AI
-genai.configure(api_key="SUA_API_KEY_GEMINI_AQUI")
-model = GenerativeModel('gemini-3.8-flash')
+import os
+
+# Configurar Gemini AI puxando a chave da Vercel
+genai.configure(api_key=os.environ.get("API_KEY"))
+model = GenerativeModel('gemini-2.5-flash')
 
 # Nome do arquivo do banco de dados local
 DB_NAME = "studyai_local.db"
