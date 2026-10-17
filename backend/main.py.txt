@@ -1,0 +1,99 @@
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+from google.generativeai import GenerativeModel
+import google.generativeai as genai
+import json
+import io
+from fpdf import FPDF
+from auth import create_access_token, verify_password, get_password_hash
+from crud import create_user, get_user_by_email, create_materia, get_materias
+from schemas import *
+from database import get_db
+from models import Base
+from database import engine
+
+app = FastAPI(title="StudyAI API")
+
+# Configurar Gemini AI
+genai.configure(api_key="SUA_API_KEY_GEMINI_AQUI")  # Pegue grátis em makersuite.google.com
+model = GenerativeModel('gemini-1.5-flash')
+
+Base.metadata.create_all(bind=engine)
+
+# ===== ROTAS DE AUTENTICAÇÃO =====
+@app.post("/register", response_model=Token)
+def register(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = get_user_by_email(db, user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email já cadastrado")
+    user_db = create_user(db, user)
+    access_token = create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.post("/token", response_model=Token)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = get_user_by_email(db, form_data.username)
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Credenciais inválidas")
+    access_token = create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+# ===== ROTAS DE MATÉRIAS =====
+@app.post("/materias/")
+def add_materia(materia: MateriaCreate, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    # Extrair user_id do token (simplificado)
+    user_id = 1  # Implementar decode JWT real
+    nova_materia = create_materia(db, materia, user_id)
+    return nova_materia
+
+@app.get("/materias/", response_model=List[Materia])
+def list_materias(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    user_id = 1  # Implementar decode JWT real
+    return get_materias(db, user_id)
+
+# ===== GERADOR DE QUIZ COM IA =====
+@app.post("/gerar-quiz/")
+def gerar_quiz(materia: str, topico: str, token: str = Depends(oauth2_scheme)):
+    prompt = f"""
+    Gere 5 perguntas de múltipla escolha sobre {materia} - {topico}.
+    Formato JSON exato:
+    [
+      {{
+        "pergunta": "texto da pergunta?",
+        "opcoes": ["A) opção1", "B) opção2", "C) opção3", "D) opção4"],
+        "resposta_correta": 0
+      }}
+    ]
+    """
+    
+    response = model.generate_content(prompt)
+    perguntas_json = json.loads(response.text)
+    
+    return {
+        "materia": materia,
+        "perguntas": perguntas_json
+    }
+
+# ===== GERAR PDF DE RESULTADOS =====
+@app.post("/gerar-pdf/")
+def gerar_pdf_relatorio(resultados: dict):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=24)
+    pdf.cell(200, 10, txt="StudyAI - Relatório de Estudos", ln=1, align='C')
+    pdf.ln(10)
+    
+    pdf.set_font("Arial", size=12)
+    for i, resultado in enumerate(resultados.get('resultados', [])):
+        pdf.cell(200, 10, txt=f"Pergunta {i+1}: {resultado['status']}", ln=1)
+    
+    pdf_output = io.BytesIO()
+    pdf_output.write(pdf.output(dest='S').encode('latin1'))
+    pdf_output.seek(0)
+    
+    return {"pdf_base64": pdf_output.getvalue()}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

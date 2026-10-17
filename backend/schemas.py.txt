@@ -1,0 +1,34 @@
+from pydantic import BaseModel
+from typing import List, Optional
+
+class UserCreate(BaseModel):
+    email: str
+    password: str
+    nome: str
+
+class User(BaseModel):
+    id: int
+    email: str
+    nome: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class MateriaCreate(BaseModel):
+    nome: str
+    topico: str
+
+class Materia(BaseModel):
+    id: int
+    nome: str
+    topico: str
+
+class Pergunta(BaseModel):
+    pergunta: str
+    opcoes: List[str]
+    resposta_correta: int
+
+class QuizResponse(BaseModel):
+    perguntas: List[Pergunta]
+    materia: str

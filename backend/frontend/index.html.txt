@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyAI - Assistente Inteligente</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#00D4FF">
+</head>
+<body>
+    <!-- TELA DE LOGIN -->
+    <div id="loginScreen" class="screen active">
+        <div class="logo">
+            <div class="neural-book"></div>
+            <h1>StudyAI</h1>
+        </div>
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <p>Não tem conta? <a href="#" id="showRegister">Cadastre-se</a></p>
+    </div>
+
+    <!-- TELA DE CADASTRO -->
+    <div id="registerScreen" class="screen">
+        <div class="logo">
+            <div class="neural-book"></div>
+            <h1>StudyAI</h1>
+        </div>
+        <form id="registerForm">
+            <input type="text" id="nome" placeholder="Nome completo" required>
+            <input type="email" id="regEmail" placeholder="Email" required>
+            <input type="password" id="regPassword" placeholder="Senha" required>
+            <button type="submit">Cadastrar</button>
+        </form>
+        <p>Já tem conta? <a href="#" id="showLogin">Entrar</a></p>
+    </div>
+
+    <!-- DASHBOARD PRINCIPAL -->
+    <div id="dashboard" class="screen">
+        <header>
+            <div class="user-info">
+                <span id="userName">Bem-vindo!</span>
+                <button id="logout">Sair</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- CADASTRO DE MATÉRIA -->
+            <section class="card">
+                <h2>📚 Nova Matéria</h2>
+                <form id="materiaForm">
+                    <input type="text" id="materiaNome" placeholder="Nome da matéria">
+                    <input type="text" id="materiaTopico" placeholder="Tópico específico">
+                    <button type="submit">Salvar Matéria</button>
+                </form>
+            </section>
+
+            <!-- LISTA DE MATÉRIAS -->
+            <section class="card">
+                <h2>📖 Suas Matérias</h2>
+                <div id="materiasList"></div>
+            </section>
+
+            <!-- QUIZ ATIVO -->
+            <section id="quizSection" class="card hidden">
+                <h2 id="quizTitle">Quiz</h2>
+                <div id="perguntasContainer"></div>
+                <div class="quiz-controls">
+                    <button id="verificarRespostas">Verificar Respostas</button>
+                    <button id="gerarPDF">📄 Gerar PDF</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
