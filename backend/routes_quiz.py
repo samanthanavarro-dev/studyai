@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import json
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -40,3 +41,18 @@ def gerar_quiz(dados: QuizRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao falar com o Gemini: {str(e)}")
+=======
+from fastapi import APIRouter
+import random
+
+router = APIRouter()
+
+@router.get("/quiz/{tema}")
+def gerar_quiz(tema: str):
+    perguntas = [
+        {"pergunta": f"O que é {tema}?", "opcoes": ["A", "B", "C"], "resposta": "A"},
+        {"pergunta": f"Qual a importância de {tema}?", "opcoes": ["X", "Y", "Z"], "resposta": "Y"}
+    ]
+    return random.sample(perguntas, len(perguntas))
+ 
+>>>>>>> d405e2ef5fe2da4ecd3681f3e35da8fd55e5017b
