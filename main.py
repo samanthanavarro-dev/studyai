@@ -19,23 +19,18 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_db_connection():
     # Conecta ao banco de dados Postgres na nuvem
-    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
-
-def init_db():
-    # Cria a tabela de matérias no banco da nuvem se ela não existir
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS materias (
-            id SERIAL PRIMARY KEY,
-            nome TEXT NOT NULL,
-            topico TEXT NOT NULL
+       if not database_url:
+        raise RuntimeError(
+            "DATABASE_URL não configurada. "
+            "Adicione a conexão PostgreSQL nas "
+            "variáveis de ambiente da Vercel."
         )
-    """)
-    conn.commit()
-    cursor.close()
-    conn.close()
 
+    return psycopg2.connect(
+        database_url,
+        cursor_factory=RealDictCursor
+    )
+ 
 # Inicializa o banco de dados na nuvem
 init_db()
 
