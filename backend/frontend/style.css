@@ -1,123 +1,169 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-
-body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #0a1f44, #0097a7);
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
-/* Logo */
-.logo {
-    width: 180px;
-    display: block;
-    margin: 0 auto 30px auto;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0B132B 0%, #1C2526 100%);
+    color: #FFFFFF;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-/* Container principal */
-.dashboard-container {
-    display: flex;
-    height: 100vh;
-}
-
-/* Sidebar */
-.sidebar {
-    width: 220px;
-    background-color: #0a1f44;
-    color: white;
+.screen {
+    display: none;
+    min-height: 100vh;
     padding: 20px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.screen.active {
+    display: block;
+}
+
+.logo {
     text-align: center;
+    margin-bottom: 40px;
 }
 
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-    margin-top: 20px;
+.neural-book {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(45deg, #00D4FF, #0099CC);
+    border-radius: 20px;
+    position: relative;
+    animation: pulse 2s infinite;
 }
 
-.sidebar li {
-    margin: 20px 0;
-    cursor: pointer;
-    font-weight: 600;
+.neural-book::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 30px;
+    background: #0B132B;
+    border-radius: 15px;
+    clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 15% 100%);
 }
 
-.sidebar li:hover {
-    color: #00bcd4;
+.neural-book::after {
+    content: '⚡';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
 }
 
-/* Área principal */
-.main-content {
-    flex: 1;
-    background-color: #f9f9f9;
-    padding: 40px;
+h1 {
+    background: linear-gradient(45deg, #00D4FF, #FFFFFF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2.5em;
+    font-weight: 700;
 }
 
-.main-content h2 {
-    color: #0a1f44;
-    margin-bottom: 20px;
-}
-
-/* Botão adicionar matéria */
-.add-button {
-    background-color: #00bcd4;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    float: right;
-    margin-bottom: 20px;
-    font-weight: 600;
-}
-
-.add-button:hover {
-    background-color: #007c91;
-}
-
-/* Cards */
-.card-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+form {
+    display: flex;
+    flex-direction: column;
     gap: 20px;
 }
 
-.card {
-    background: linear-gradient(135deg, #00bcd4, #0097a7);
-    color: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
-}
-
-.card h3 {
-    margin: 0 0 10px 0;
-}
-
-.card button {
-    margin-right: 10px;
-    padding: 6px 12px;
+input {
+    padding: 15px;
     border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 16px;
+    backdrop-filter: blur(10px);
+}
+
+input::placeholder {
+    color: rgba(255,255,255,0.6);
+}
+
+button {
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(45deg, #00D4FF, #0099CC);
+    color: white;
+    font-size: 16px;
     font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
 }
 
-/* Botões dentro dos cards */
-.card .edit {
-    background-color: #0a1f44;
-    color: white;
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,212,255,0.4);
 }
 
-.card .edit:hover {
-    background-color: #1c3d6e;
+.card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0,212,255,0.2);
 }
 
-.card .delete {
-    background-color: #e53935;
-    color: white;
+.materia-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: rgba(0,212,255,0.1);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
 }
 
-.card .delete:hover {
-    background-color: #b71c1c;
+.materia-item:hover {
+    background: rgba(0,212,255,0.2);
+    transform: translateX(5px);
 }
+
+.pergunta {
+    background: rgba(0,0,0,0.3);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.opcao {
+    display: block;
+    padding: 12px;
+    margin: 8px 0;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.opcao:hover {
+    background: rgba(0,212,255,0.3);
+}
+
+.correct { background: #4CAF50 !important; }
+.incorrect { background: #f44336 !important; }
+
+.hidden { display: none !important; }
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@media (max-width: 480px) {
+    .screen { padding: 15px; }
+    h1 { font-size: 2em; }
+}
+
