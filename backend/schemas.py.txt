@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
 class UserCreate(BaseModel):
@@ -10,6 +10,7 @@ class User(BaseModel):
     id: int
     email: str
     nome: str
+    model_config = ConfigDict(from_attributes=True)
 
 class Token(BaseModel):
     access_token: str
@@ -23,6 +24,7 @@ class Materia(BaseModel):
     id: int
     nome: str
     topico: str
+    model_config = ConfigDict(from_attributes=True)
 
 class Pergunta(BaseModel):
     pergunta: str
@@ -32,3 +34,4 @@ class Pergunta(BaseModel):
 class QuizResponse(BaseModel):
     perguntas: List[Pergunta]
     materia: str
+    
