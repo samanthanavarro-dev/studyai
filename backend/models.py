@@ -1,24 +1,26 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy.sql import func
+from database import Base
 
-Base = declarative_base()
-
-class Usuario(Base):
-    __tablename__ = "usuarios"
+class User(Base):
+    __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
-    nome = Column(String, unique=True)
-    senha = Column(String)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    nome = Column(String)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class Materia(Base):
     __tablename__ = "materias"
     id = Column(Integer, primary_key=True, index=True)
-    nome = Column(String)
-    usuario_id = Column(Integer, ForeignKey("usuarios.id"))
-    usuario = relationship("Usuario")
+    nome = Column(String, index=True)
+    topico = Column(String)
+    user_id = Column(Integer, ForeignKey("users.id"))
 
 class Quiz(Base):
-    __tablename__ = "quizzes"
-    id = Column(Integer, primary_key=True)
+    __tablename__ = "quizes"
+    id = Column(Integer, primary_key=True, index=True)
     materia_id = Column(Integer, ForeignKey("materias.id"))
-    pontuacao = Column(Integer)
-    data = Column(DateTime)
+    perguntas = Column(Text)  # JSON string
+    pontuacao = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
