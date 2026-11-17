@@ -10,7 +10,7 @@ class StudyAI {
         this.bindEvents();
         if (this.token) {
             this.showDashboard();
-            this.loadUserInfo();
+            document.getElementById('userName').textContent = 'Usuário logado!';
         }
     }
 
@@ -27,8 +27,14 @@ class StudyAI {
         });
 
         // ===== TOGGLE SCREENS =====
-        document.getElementById('showRegister').onclick = () => this.showRegister();
-        document.getElementById('showLogin').onclick = () => this.showLogin();
+        document.getElementById('showRegister').onclick = (e) => {
+            e.preventDefault();
+            this.showRegister();
+        };
+        document.getElementById('showLogin').onclick = (e) => {
+            e.preventDefault();
+            this.showLogin();
+        };
 
         // ===== DASHBOARD =====
         document.getElementById('materiaForm').addEventListener('submit', (e) => {
@@ -39,11 +45,6 @@ class StudyAI {
         document.getElementById('logout').onclick = () => this.logout();
         document.getElementById('verificarRespostas').onclick = () => this.verificarQuiz();
         document.getElementById('gerarPDF').onclick = () => this.gerarPDF();
-
-        // Registrar Service Worker para PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
-        }
     }
 
     // ===== API HELPER =====
@@ -57,7 +58,7 @@ class StudyAI {
         };
 
         try {
-            const response = await fetch(`http://localhost:8000${endpoint}`, config);
+            const response = await fetch(`${endpoint}`, config);
             if (!response.ok) {
                 throw new Error(`Erro ${response.status}`);
             }
@@ -78,11 +79,16 @@ class StudyAI {
             formData.append('username', email);
             formData.append('password', password);
 
-            const data = await fetch('http://localhost:8000/token', {
+            const response = await fetch('/token', {
                 method: 'POST',
                 body: formData
-            }).then(r => r.json());
+            });
 
+            if (!response.ok) {
+                throw new Error('Email ou senha inválidos');
+            }
+
+            const data = await response.json();
             this.token = data.access_token;
             localStorage.setItem('studyai_token', this.token);
             document.getElementById('userName').textContent = 'Usuário logado!';
@@ -105,10 +111,19 @@ class StudyAI {
 
             this.token = data.access_token;
             localStorage.setItem('studyai_token', this.token);
+            document.getElementById('userName').textContent = `Olá, ${nome}!`;
             this.showDashboard();
         } catch (error) {
             alert('❌ Erro no cadastro: Email já existe?');
         }
+    }
+
+    logout() {
+        this.token = null;
+        this.currentQuiz = null;
+        localStorage.removeItem('studyai_token');
+        document.getElementById('quizSection').classList.add('hidden');
+        this.showLogin();
     }
 
     // ===== NAVEGAÇÃO =====
@@ -208,7 +223,7 @@ class StudyAI {
     }
 
     verificarQuiz() {
-        if (!this.currentQuiz?.respostas) {
+        if (!this.currentQuiz?.respostas || Object.keys(this.currentQuiz.respostas).length < this.currentQuiz.perguntas.length) {
             alert('Responda todas as perguntas primeiro!');
             return;
         }
@@ -230,24 +245,61 @@ class StudyAI {
                 }
             });
 
-            if (userResposta == correta) acertos++;
+            if (userResposta == correta) {
+                acertos++;
+            }
         });
 
-        const total = this.currentQuiz.perguntas.length;
-        alert(`🎉 Resultado: ${acertos}/${total} (${Math.round(acertos/total*100)}%)`);
+        alert(`🎯 Você acertou ${acertos} de ${this.currentQuiz.perguntas.length} perguntas!`);
     }
 
     async gerarPDF() {
-        alert('📄 PDF gerado! (Funcionalidade completa no backend)');
-        // Integração completa com endpoint /gerar-pdf/
-    }
+        if (!this.currentQuiz) {
+            alert('Gere um quiz primeiro!');
+            return;
+        }
 
-    logout() {
-        localStorage.removeItem('studyai_token');
-        this.token = null;
-        location.reload();
+        try {
+            const response = await fetch('/gerar-pdf/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(this.token && {'Authorization': `Bearer ${this.token}`})
+                },
+                body: JSON.stringify(this.currentQuiz)
+            });
+
+            if (!response.ok) {
+                throw new Error('Falha ao gerar PDF');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'quiz-studyai.pdf';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            alert('❌ Erro ao gerar PDF: ' + error.message);
+        }
     }
 }
 
-// ===== INICIALIZAR APP =====
 const studyAI = new StudyAI();
+
+    
+  
+           
+            
+
+    
+                
+       
+               
+    
+           
+            
+
